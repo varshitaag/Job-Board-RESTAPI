@@ -45,7 +45,10 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     response_model=schemas.Token,
     summary="Login and receive a JWT token",
 )
-def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
+def login(
+    credentials: schemas.UserLogin,
+    db: Session = Depends(get_db),
+):
     """
     Authenticate with email and password.
     Returns a **Bearer token** — attach it to all subsequent requests via:

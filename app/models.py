@@ -118,21 +118,22 @@ class Job(Base):
     """
     __tablename__ = "jobs"
 
-    id          = Column(Integer, primary_key=True, nullable=False)
-    company_id  = Column(Integer,
-                         ForeignKey("company_profiles.id", ondelete="CASCADE"),
-                         nullable=False)
-    title       = Column(String, nullable=False)
-    description = Column(Text, nullable=False)
-    location    = Column(String, nullable=True)
-    salary_min  = Column(Integer, nullable=True)
-    salary_max  = Column(Integer, nullable=True)
-    job_type    = Column(SAEnum(JobType), nullable=False,
-                         default=JobType.full_time)
-    status      = Column(SAEnum(JobStatus), nullable=False,
-                         server_default="open")
-    created_at  = Column(TIMESTAMP(timezone=True), nullable=False,
-                         server_default=text("now()"))
+    id                  = Column(Integer, primary_key=True, nullable=False)
+    company_id          = Column(Integer,
+                                 ForeignKey("company_profiles.id", ondelete="CASCADE"),
+                                 nullable=False)
+    title               = Column(String, nullable=False)
+    description         = Column(Text, nullable=False)
+    location            = Column(String, nullable=True)
+    salary_min          = Column(Integer, nullable=True)
+    salary_max          = Column(Integer, nullable=True)
+    job_type            = Column(SAEnum(JobType), nullable=False,
+                                 default=JobType.full_time)
+    status              = Column(SAEnum(JobStatus), nullable=False,
+                                 server_default="open")
+    positions_available = Column(Integer, nullable=False, default=1)
+    created_at          = Column(TIMESTAMP(timezone=True), nullable=False,
+                                 server_default=text("now()"))
 
     company      = relationship("CompanyProfile", back_populates="jobs")
     applications = relationship("Application", back_populates="job",

@@ -58,7 +58,7 @@ def apply_to_job(
 ):
     """
     A candidate can apply to a job only once.
-    The job must be open.
+    The job must be open and have available positions.
     You must have a candidate profile before applying.
     """
     profile = current_user.candidate_profile
@@ -78,6 +78,17 @@ def apply_to_job(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This job is no longer accepting applications.",
+        )
+
+    # check if job has available positions
+    accepted_count = db.query(models.Application).filter(
+        models.Application.job_id == job_id,
+        models.Application.status == ApplicationStatus.accepted,
+    ).count()
+    if accepted_count >= job.positions_available:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="All positions for this job have been filled.",
         )
 
     # prevent duplicate applications
@@ -219,6 +230,9 @@ def update_application_status(
             rejected      rejected
     ```
     Invalid transitions (e.g. accepted → applied) are blocked with 422.
+    
+    When all positions are filled (accepted applications >= positions_available),
+    the job is automatically closed.
     """
     profile     = current_user.company_profile
     application = db.query(models.Application).filter(
@@ -241,6 +255,15 @@ def update_application_status(
 
     application.status     = data.status
     application.updated_at = datetime.now(timezone.utc)
+
+    # if accepting, check if all positions are now filled
+    if data.status == ApplicationStatus.accepted:
+        accepted_count = db.query(models.Application).filter(
+            models.Application.job_id == application.job_id,
+            models.Application.status == ApplicationStatus.accepted,
+        ).count()
+        if accepted_count >= application.job.positions_available:
+            application.job.status = JobStatus.closed
 
     db.commit()
     db.refresh(application)

@@ -114,6 +114,7 @@ class JobCreate(BaseModel):
     salary_min: Optional[int] = None
     salary_max: Optional[int] = None
     job_type: JobType = JobType.full_time
+    positions_available: int = 1
 
 
 class JobUpdate(BaseModel):
@@ -124,6 +125,7 @@ class JobUpdate(BaseModel):
     salary_max: Optional[int] = None
     job_type: Optional[JobType] = None
     status: Optional[JobStatus] = None
+    positions_available: Optional[int] = None
 
 
 class JobOut(BaseModel):
@@ -135,6 +137,7 @@ class JobOut(BaseModel):
     salary_max: Optional[int]
     job_type: JobType
     status: JobStatus
+    positions_available: int
     created_at: datetime
     company: CompanyProfileOut          # nested company info
 
